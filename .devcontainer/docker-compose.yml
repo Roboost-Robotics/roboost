@@ -1,10 +1,20 @@
-version: '3'
 services:
-  micro-ros-agent:
-    image: microros/micro-ros-agent:humble
-    command: udp4 -p 8888
+  dev:
+    build: .
+    network_mode: host  # the ESP32s reach the agent on the host's IP, ROS 2 discovery just works
+    ipc: host           # DDS shared memory between this container and the agent
+    privileged: true    # USB serial for flashing
+    volumes:
+      - ..:/ws/src/roboost
+      - /dev:/dev
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+    command: sleep infinity
+
+  agent:
+    image: microros/micro-ros-agent:jazzy
     network_mode: host
-  ros2_node:
-    image: ros:humble-ros-core
-    command: ros2 topic list
-    network_mode: host
+    ipc: host
+    command: udp4 --port 8888
+    restart: unless-stopped
