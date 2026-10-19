@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!-- Roboost mecanum robot. Wheel positions match firmware/src/motor_board/config.h. -->
+<robot name="roboost">
+  <material name="orange"><color rgba="1.0 0.423 0.039 1.0"/></material>
+  <material name="grey"><color rgba="0.2 0.2 0.2 1.0"/></material>
+  <material name="red"><color rgba="0.8 0.0 0.0 1.0"/></material>
+  <material name="blue"><color rgba="0.0 0.0 0.8 1.0"/></material>
+
+  <!-- Ground projection; odom -> base_footprint comes from the motor board. -->
+  <link name="base_footprint"/>
+
+  <!-- On the wheel axles (wheel radius 0.075 m). -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry><mesh filename="package://roboost_bringup/meshes/Chassis.STL" scale="0.001 0.001 0.001"/></geometry>
+      <material name="orange"/>
+    </visual>
+  </link>
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.075" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Wheels: wheel base 0.3185 m, track 0.38 m. Joint axes chosen so + = rolling forward. -->
+  <link name="wheel_front_left_link">
+    <visual>
+      <geometry><mesh filename="package://roboost_bringup/meshes/Mecanum-Wheel-Left.STL" scale="0.001 0.001 0.001"/></geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  <joint name="wheel_front_left_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_front_left_link"/>
+    <origin xyz="0.15925 0.19 0" rpy="4.71239 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="wheel_front_right_link">
+    <visual>
+      <geometry><mesh filename="package://roboost_bringup/meshes/Mecanum-Wheel-Right.STL" scale="0.001 0.001 0.001"/></geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  <joint name="wheel_front_right_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_front_right_link"/>
+    <origin xyz="0.15925 -0.19 0" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+
+  <link name="wheel_back_left_link">
+    <visual>
+      <geometry><mesh filename="package://roboost_bringup/meshes/Mecanum-Wheel-Left.STL" scale="0.001 0.001 0.001"/></geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  <joint name="wheel_back_left_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_back_left_link"/>
+    <origin xyz="-0.15925 0.19 0" rpy="4.71239 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="wheel_back_right_link">
+    <visual>
+      <geometry><mesh filename="package://roboost_bringup/meshes/Mecanum-Wheel-Right.STL" scale="0.001 0.001 0.001"/></geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  <joint name="wheel_back_right_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_back_right_link"/>
+    <origin xyz="-0.15925 -0.19 0" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+
+  <!-- RPLidar A1. Mounted upside down (roll = pi) so its clockwise scan angles
+       come out counter-clockwise; scan angle 0 points to the robot's right. -->
+  <link name="lidar_link">
+    <visual>
+      <origin xyz="0 0 0.042" rpy="-1.5708 0 3.14159"/>
+      <geometry><mesh filename="package://roboost_bringup/meshes/RP-LiDAR.STL" scale="0.001 0.001 0.001"/></geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0.057 0.045 0.1655" rpy="3.14159 0 4.71239"/>
+  </joint>
+
+  <!-- MPU6050 on the sensor board. -->
+  <link name="imu_link">
+    <visual>
+      <geometry><box size="0.02 0.02 0.01"/></geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0.16 -0.08 0.108" rpy="0 0 0"/>
+  </joint>
+</robot>

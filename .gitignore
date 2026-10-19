@@ -1,4 +1,12 @@
-build
-install
-log
-src/*
+# colcon
+build/
+install/
+log/
+
+# PlatformIO
+firmware/.pio/
+firmware/include/wifi_config.h
+
+.vscode/
+__pycache__/
+*.egg-info/

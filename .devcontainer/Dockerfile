@@ -1,25 +1,21 @@
-FROM ros:humble
-ARG USERNAME=geibinger
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+FROM osrf/ros:jazzy-desktop
 
-# Create the user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    #
-    # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
-    && apt-get update \
-    && apt-get install -y sudo \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y python3-pip
-ENV SHELL /bin/bash
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ros-jazzy-slam-toolbox \
+        ros-jazzy-teleop-twist-keyboard \
+        python3-pip python3-venv git cmake sudo \
+    && rm -rf /var/lib/apt/lists/*
 
-# ********************************************************
-# * Anything else you want to do like clean up goes here *
-# ********************************************************
+# Use the image's default user (uid 1000) with access to USB serial ports for flashing.
+RUN usermod -aG dialout ubuntu \
+    && echo "ubuntu ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu \
+    && mkdir -p /ws/src && chown -R ubuntu:ubuntu /ws
+USER ubuntu
 
-# [Optional] Set the default user. Omit if you want to keep the default as root.
-USER $USERNAME
-CMD ["/bin/bash"]
+# PlatformIO laid out like its installer does it (micro_ros_platformio expects ~/.platformio/penv).
+RUN python3 -m venv ~/.platformio/penv && ~/.platformio/penv/bin/pip install --no-cache-dir platformio
+ENV PATH=/home/ubuntu/.platformio/penv/bin:$PATH
+
+RUN echo 'source /opt/ros/jazzy/setup.bash' >> ~/.bashrc \
+    && echo '[ -f /ws/install/setup.bash ] && source /ws/install/setup.bash' >> ~/.bashrc
+WORKDIR /ws
